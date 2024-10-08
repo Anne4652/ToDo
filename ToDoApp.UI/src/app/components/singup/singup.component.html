@@ -1,0 +1,68 @@
+<div class="flex flex-col gap-6 max-w-md mx-auto p-8 bg-white rounded-lg shadow-md mt-12">
+    <h5 class="text-2xl font-bold text-gray-800 text-center">Login Here</h5>
+    
+    <form [formGroup]="singupForm" (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
+      
+      <!-- Username Field -->
+      <div class="form-group mb-5">
+        <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">User Name</label>
+        <input
+          type="text"
+          id="userName"
+          placeholder="Enter your user name"
+          class="form-control w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          formControlName="userName"
+          [ngClass]="{'border-red-500': singupForm.get('userName')?.invalid && singupForm.get('userName')?.touched}"
+        >
+        <!-- Error Message for Username -->
+        <div *ngIf="singupForm.get('userName')?.hasError('required') && singupForm.get('userName')?.touched" class="text-red-500 text-sm mt-1">
+          User name is required.
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group mb-5">
+        <label for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input
+          type="text"
+          id="Email"
+          placeholder="Enter your email"
+          class="form-control w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          formControlName="email"
+          [ngClass]="{'border-red-500': singupForm.get('email')?.invalid && singupForm.get('email')?.touched}"
+        >
+        <!-- Error Message for Email -->
+        <div *ngIf="singupForm.get('email')?.hasError('required') && singupForm.get('email')?.touched" class="text-red-500 text-sm mt-1">
+          Email is required.
+        </div>
+      </div>
+      
+      <!-- Password Field -->
+      <div class="form-group mb-5">
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
+          class="form-control w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          formControlName="password"
+          [ngClass]="{'border-red-500': singupForm.get('password')?.invalid && singupForm.get('password')?.touched}"
+        >
+        <!-- Error Message for Password -->
+        <div *ngIf="singupForm.get('password')?.hasError('required') && singupForm.get('password')?.touched" class="text-red-500 text-sm mt-1">
+          Password is required.
+        </div>
+      </div>
+  
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
+        [disabled]="singupForm.invalid"
+      >
+        Submit
+      </button>
+      
+    </form>
+  </div>
+  

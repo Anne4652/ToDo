@@ -1,0 +1,187 @@
+<link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+
+<div class="p-6 bg-gray-100 h-screen flex flex-col">
+  <!-- Top Bar: Logout Button -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold">Tasks</h2>
+    <button class="btn btn-outline bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600" (click)="onLogout()">
+      <i class="ri-logout-box-line"></i> Logout
+    </button>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="categories-container flex items-center overflow-x-auto mb-4">
+    <!-- Scroll left arrow (before categories) -->
+    <button class="scroll-left mr-2">
+      <i class="ri-arrow-left-s-line"></i>
+    </button>
+
+    <div class="flex justify-between items-center">
+      <!-- Iterate over categories dynamically -->
+      <div *ngFor="let category of categories" class="category-item flex items-center">
+        <div [formGroup]="categoryForm[category.id]">
+          <span *ngIf="!categoryEditState[category.id]" [class.selected-category]="category.id === selectedCategory"
+              (click)="filterTasksByCategory(category.id)">
+          {{ category.name }}
+        </span>
+        <input *ngIf="categoryEditState[category.id]" 
+                 formControlName="name"
+                 class="form-input">
+        </div>
+        <button *ngIf="!categoryEditState[category.id]" class="edit-btn ml-2" (click)="onEditCategory(category)">
+          <i class="ri-edit-line"></i>
+        </button>
+        <button *ngIf="!categoryEditState[category.id]" class="delete-btn ml-2" (click)="onDeleteCategory(category)">
+          <i class="ri-delete-bin-line"></i>
+        </button>
+        <button *ngIf="categoryEditState[category.id]" (click)="onSaveCategory(category)">
+          <i class="ri-check-line" style="color: green; font-size: 24px;"></i>
+        </button>
+        <button *ngIf="categoryEditState[category.id]" (click)="onCancelCategoryEdit(category.id)">
+          <i class="ri-close-line" style="color: red; font-size: 24px;"></i>
+        </button>
+      </div>
+      <button *ngIf="!categoryAddState" class="btn btn-primary ml-2" (click)="onAddCategory()">
+        <i class="ri-add-line"></i>
+      </button>
+      
+      <!-- Category Add Form using Tailwind Flexbox -->
+  <div *ngIf="categoryAddState" [formGroup]="categoryForm[0]" class="flex items-bottom space-x-4 mb-4">
+  
+  <!-- Input field for new category -->
+  <input formControlName="name" placeholder="Enter category name" 
+    class="flex-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+  
+  <!-- Save Button -->
+  <button [disabled]="!categoryForm[0].valid" class="bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50"
+    (click)="onSaveNewCategory()">
+    <i class="ri-check-line" style="font-size: 24px;"></i>
+  </button>
+
+  <!-- Cancel Button -->
+  <button class="bg-red-500 text-white rounded-md hover:bg-red-600"
+    (click)="onCancelNewCategory()">
+    <i class="ri-close-line" style="font-size: 24px;"></i>
+  </button>
+  
+</div>
+
+    </div>
+
+    <!-- Scroll right arrow -->
+    <button class="scroll-right ml-2">
+      <i class="ri-arrow-right-s-line"></i>
+    </button>
+  </div>
+
+  <div class="bg-gray-100 h-screen flex flex-col">
+    <!-- Task List Table -->
+    <div class="flex-1 overflow-auto">
+      <table class="min-w-full table-auto bg-white shadow-md rounded-md">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="py-2 px-4 text-left">Task Name</th>
+            <th class="py-2 px-4 text-left">Description</th>
+            <th class="py-2 px-4 text-left">Category</th>
+            <th class="py-2 px-4 text-left">Due Date</th>
+            <th class="py-2 px-4 text-center">Completed</th>
+            <th class="py-2 px-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Existing Tasks -->
+          <tr *ngFor="let task of tasks; let i = index" [class.bg-yellow-100]="editedTaskIndex === i">
+            <td [formGroup]="taskForm">
+              <input *ngIf="editedTaskIndex === i" formControlName="title" class="form-input" />
+              <span *ngIf="editedTaskIndex !== i">{{ task.title }}</span>
+            </td>
+            <td [formGroup]="taskForm">
+              <input *ngIf="editedTaskIndex === i" formControlName="description" class="form-input" />
+              <span *ngIf="editedTaskIndex !== i">{{ task.description }}</span>
+            </td>
+            <td [formGroup]="taskForm">
+              <select *ngIf="editedTaskIndex === i" formControlName="categoryName" class="form-select">
+                <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
+              </select>
+              <span *ngIf="editedTaskIndex !== i">{{ getCategoryById(task.category.id).name }}</span>
+            </td>
+            <td [formGroup]="taskForm">
+              <input *ngIf="editedTaskIndex === i" formControlName="dueDate" type="date" class="form-input" />
+              <span *ngIf="editedTaskIndex !== i">{{ task.dueDate | date: 'shortDate' }}</span>
+            </td>
+            <td class="text-center" [formGroup]="taskForm">
+              <input *ngIf="editedTaskIndex === i" formControlName="isCompleted" type="checkbox" />
+              <input *ngIf="editedTaskIndex !== i" type="checkbox" [checked]="task.isCompleted" disabled />
+            </td>
+            <td class="flex justify-center">
+              <button *ngIf="editedTaskIndex === i" (click)="onSaveTask()" class="btn btn-success mx-2">
+                <i class="ri-save-line"></i> Save
+              </button>
+              <button *ngIf="editedTaskIndex === i" (click)="onCancelTaskEdit()" class="btn btn-secondary mx-2">
+                <i class="ri-close-line"></i> Cancel
+              </button>
+              <button *ngIf="editedTaskIndex !== i" (click)="onEditTask(i)" class="btn btn-primary mx-2">
+                <i class="ri-edit-line"></i> Edit
+              </button>
+              <button *ngIf="editedTaskIndex !== i" (click)="onDeleteTask(task)" class="btn btn-danger mx-2">
+                <i class="ri-delete-bin-line"></i> Delete
+              </button>
+            </td>
+          </tr>
+  
+          <!-- New Task Row -->
+          <tr *ngIf="addingNewTask">
+            <form [formGroup]="taskForm">
+              <td><input formControlName="title" class="form-input" placeholder="Task Name" /></td>
+              <td><input formControlName="description" class="form-input" placeholder="Description" /></td>
+              <td>
+                <select formControlName="category" class="form-select">
+                  <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+                </select>
+              </td>
+              <td><input formControlName="dueDate" type="date" class="form-input" /></td>
+              <td class="text-center">
+                <input formControlName="isCompleted" type="checkbox" />
+              </td>
+              <td class="flex justify-center">
+                <button (click)="onSaveNewTask()" class="btn btn-success mx-2">
+                  <i class="ri-save-line"></i> Save
+                </button>
+                <button (click)="onCancelTaskEdit()" class="btn btn-secondary mx-2">
+                  <i class="ri-close-line"></i> Cancel
+                </button>
+              </td>
+            </form>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Add Task Button -->
+    <div class="mt-4 flex justify-end">
+      <button *ngIf="!addingNewTask" (click)="onAddTask()" class="btn btn-primary">
+        <i class="ri-add-line"></i> Add Task
+      </button>
+    </div>
+  </div>
+  
+
+  <!-- Pagination Controls -->
+  <div class="pagination-controls flex justify-center mt-4">
+    <button class="btn btn-outline mx-2" (click)="prevPage()" [disabled]="currentPage === 1">
+      <i class="ri-arrow-left-s-line"></i>
+    </button>
+    <span class="mx-2">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn btn-outline mx-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      <i class="ri-arrow-right-s-line"></i>
+    </button>
+    <div class="ml-4">
+      <label for="tasksPerPage">Tasks per page:</label>
+      <select id="tasksPerPage" [formControl]="tasksPerPageControl" (change)="onTasksPerPageChange()">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+    </div>
+  </div>
+</div>
